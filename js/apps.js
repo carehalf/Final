@@ -1,3 +1,4 @@
+//determines the year and formats it the way I want it.
 var d = new Date();
 var month = new Array();
 month[0] = "January";
@@ -15,18 +16,35 @@ month[11] = "December";
 var mon = month[d.getMonth()];
 var day = d.getDate();
 var year = d.getFullYear();
+//creates the variables for the index and the variables that store the to do list and search list
 var ind = 0;
 var SearchList = [];
 var date = [[mon + ' ' + day + ', ' + year, []]];
+
+//creates the header and appends it to the an element.
 var leftDiv = document.createElement("div")
 a = document.createElement('h2');
 a.innerHTML = 'To Do List for ' + date[ind][0] + ' <input type="button" value="&#9654;" data-toggle="tooltip" data-placement="bottom" title="Go to the To Do List for the next day." id="btnTom"' + ind + '" onclick="Tom(' + ind + ')"/>';
 leftDiv.appendChild(a); // Add name to left div
 
 document.getElementById("updateDiv").appendChild(leftDiv);
+//adds the event listener for the search button
+var btnNewSearch = document.getElementById("btnModalSearch");
+btnModalSearch.addEventListener("click", newSearch);
 
+//prevents enter key from submitting the form
+document.querySelector('form').onkeypress = checkEnter;
+function checkEnter(e){
+ e = e || event;
+ var txtArea = /textarea/i.test((e.target || e.srcElement).tagName);
+ return txtArea || (e.keyCode || e.which || e.charCode || 0) !== 13;
+}
+
+
+//adds the contents of the to do list to the page.
 function addToPage()
 {
+    //recreates the header
     d = new Date();
     d.setDate(d.getDate() + ind);
     mon = month[d.getMonth()];
@@ -35,13 +53,29 @@ function addToPage()
     var h2 = document.querySelector('h2');
     if (ind == 0)
     {
-        h2.innerHTML = '<span data-toggle="tooltip" data-placement="bottom" title="Searches all your lists for the text you enter."><button type="button" class="btn btn-info glyphicon glyphicon-search" data-toggle="modal" data-target="#myModal" title="Searches all your lists for the text you enter." onclick="newSearch(document.getElementById(\'addToDo\').value);"> Search</button></span> To Do List for ' + date[ind][0] + ' <input type="button" value="&#9654;" data-toggle="tooltip" data-placement="bottom" title="Go to the To Do List for the next day." id="btnTom"' + ind + '" onclick="Tom(' + ind + ')"/>';
+        h2.innerHTML = '<span data-toggle="tooltip" data-placement="bottom" title="Searches all your lists for the text you enter."><button type="button" class="btn btn-info glyphicon glyphicon-search" data-toggle="modal" data-target="#myModal" title="Searches all your lists for the text you enter." id="openModal" > Search</button></span> To Do List for ' + date[ind][0] + ' <input type="button" value="&#9654;" data-toggle="tooltip" data-placement="bottom" title="Go to the To Do List for the next day." id="btnTom"' + ind + '" onclick="Tom(' + ind + ')"/>';
     }
     else
     {
-        h2.innerHTML = '<span data-toggle="tooltip" data-placement="bottom" title="Searches all your lists for the text you enter."><button type="button" class="btn btn-info glyphicon glyphicon-search" data-toggle="modal" data-target="#myModal" title="Searches all your lists for the text you enter." onclick="newSearch(document.getElementById(\'addToDo\').value);"> Search</button></span> To Do List for ' + date[ind][0] + ' <input type="button" value="&#x25C0;" data-toggle="tooltip" data-placement="bottom" title="Go to the To Do List for the previous day." id="btnYes"' + ind + '" onclick="Yes(' + ind + ')"/><input type="button" value="&#9654;" data-toggle="tooltip" data-placement="bottom" title="Go to the To Do List for the next day." id="btnTom"' + ind + '" onclick="Tom(' + ind + ')"/>';
+        h2.innerHTML = '<span data-toggle="tooltip" data-placement="bottom" title="Searches all your lists for the text you enter."><button type="button" class="btn btn-info glyphicon glyphicon-search" data-toggle="modal" data-target="#myModal" title="Searches all your lists for the text you enter." id="openModal"> Search</button></span> To Do List for ' + date[ind][0] + ' <input type="button" value="&#x25C0;" data-toggle="tooltip" data-placement="bottom" title="Go to the To Do List for the previous day." id="btnYes"' + ind + '" onclick="Yes(' + ind + ')"/><input type="button" value="&#9654;" data-toggle="tooltip" data-placement="bottom" title="Go to the To Do List for the next day." id="btnTom"' + ind + '" onclick="Tom(' + ind + ')"/>';
     }
-    
+
+    //recreates the eventlistener for the search button as well as creates listeners for the close buttons on the modal
+    var searchButton = document.getElementById("openModal");
+    searchButton.addEventListener("click", function () {
+        var mT = document.getElementById("modalTable");
+        mT.innerHTML = "";
+    });
+    var modalClose = document.getElementById("modalClose");
+    modalClose.addEventListener("click", function () {
+        addToPage();
+    });
+    var btnModalClose = document.getElementById("btnModalClose");
+    btnModalClose.addEventListener("click", function () {
+        addToPage();
+    });
+
+    //clears and recreates the table of to do items for the selected day
     var table = document.querySelector("#updateTable"); //Create left div
     while (table.rows.length > 0)
     {
@@ -59,52 +93,52 @@ function addToPage()
             for(var j=0; j<colCount; j++) {
 
                 var newcell = row.insertCell(j);
-                newcell.id = "row" + i + "cell" + j;
+                newcell.id = "Trow" + i + "cell" + j;
 
                 switch(j) {
                     case 1:
                              if (date[ind][1][i][0] == false)
                             {
-                                newcell.innerHTML = '<p id="p' + i + '">' + date[ind][1][i][1] + '</p>';
+                                newcell.innerHTML = '<p id="pT' + i + '">' + date[ind][1][i][1] + '</p>';
                             }
                             else
                             {
-                                newcell.innerHTML = '<p id="p' + i + '" style="color:gray;"><strike>' + date[ind][1][i][1] + '</strike></p>';
+                                newcell.innerHTML = '<p id="pT' + i + '" style="color:gray;"><strike>' + date[ind][1][i][1] + '</strike></p>';
                             }
                             
                             break;
                     case 0:
                             if (date[ind][1][i][0] == false)
                             {
-                                newcell.innerHTML = '<input type="checkbox" data-toggle="tooltip" data-placement="left" title="Marks this item on your To Do List as completed." id="ckb' + i + '" onchange="Comp(' + i + ')" />';
+                                newcell.innerHTML = '<input type="checkbox" data-toggle="tooltip" data-placement="left" title="Marks this item on your To Do List as completed." id="ckbT' + i + '" onchange="Comp(' + i + ')" />';
                             }
                             else
                             {
-                                newcell.innerHTML = '<input type="checkbox" data-toggle="tooltip" data-placement="left" title="Marks this item on your To Do List as incomplete." id="ckb' + i + '" onchange="Comp(' + i + ')" checked="true" />';    
+                                newcell.innerHTML = '<input type="checkbox" data-toggle="tooltip" data-placement="left" title="Marks this item on your To Do List as incomplete." id="ckbT' + i + '" onchange="Comp(' + i + ')" checked="true" />';    
                             }
                             
                             break;
                     case 2:
                             if (date[ind][1][i][0] == false)
                             {
-                                newcell.innerHTML = '<button type="button" data-toggle="tooltip" data-placement="bottom" title="Allows you to edit this item on your To Do List." class="btn btn-warning  glyphicon glyphicon-pencil" id="btnEdit' + i + '" onclick="Ed(' + i + ')"/>';
+                                newcell.innerHTML = '<button type="button" data-toggle="tooltip" data-placement="bottom" title="Allows you to edit this item on your To Do List." class="btn btn-warning  glyphicon glyphicon-pencil" id="btnTEdit' + i + '" onclick="Ed(' + i + ')"/>';
                                 break;
                             }
                             else
                             {
-                                newcell.innerHTML = '<button type="button" data-toggle="tooltip" data-placement="bottom" title="An item that is completed can not be edited." disabled class="btn disabled  glyphicon glyphicon-pencil" id="btnEdit' + i + '" onclick="Ed(' + i + ')"/>';
+                                newcell.innerHTML = '<button type="button" data-toggle="tooltip" data-placement="bottom" title="An item that is completed can not be edited." disabled class="btn disabled  glyphicon glyphicon-pencil" id="btnTEdit' + i + '" onclick="Ed(' + i + ')"/>';
                                 break;  
                             }
                             
                     case 3:
                             if (date[ind][1][i][0] == false)
                             {
-                                newcell.innerHTML = '<button type="button" data-toggle="tooltip" data-placement="bottom" title="Deletes this item from your To Do List" class="btn btn-danger glyphicon glyphicon-trash" id="btnDelete' + i + '" onclick="Del(' + i + ')"/>';
+                                newcell.innerHTML = '<button type="button" data-toggle="tooltip" data-placement="bottom" title="Deletes this item from your To Do List" class="btn btn-danger glyphicon glyphicon-trash" id="btnTDelete' + i + '" onclick="Del(' + i + ')"/>';
                                 break;
                             }
                             else
                             {
-                                newcell.innerHTML = '<button type="button" data-toggle="tooltip" data-placement="bottom" title="An item that is completed can not be deleted from your To Do List." disabled class="btn disabled glyphicon glyphicon-trash" id="btnDelete' + i + '" onclick="Del(' + i + ')"/>';
+                                newcell.innerHTML = '<button type="button" data-toggle="tooltip" data-placement="bottom" title="An item that is completed can not be deleted from your To Do List." disabled class="btn disabled glyphicon glyphicon-trash" id="btnTDelete' + i + '" onclick="Del(' + i + ')"/>';
                                 break;  
                             }
                     case 4:
@@ -141,6 +175,7 @@ function addToPage()
     
     }
 
+    //creates the header row for the table
     row = table.insertRow(0);
     newcell = row.insertCell(0);
     newcell.innerHTML = "Complete";
@@ -156,12 +191,15 @@ function addToPage()
     newcell.innerHTML = "Move Down";
 
     leftDiv.appendChild(table); // Add name to left div
-
+    //clears the addToDo textbox
     document.getElementById("addToDo").value = "";
 }
+
+//adds a new itme to the to do list
 function newToDo(toDo)
 {
     console.log(toDo);
+    //verifies there is something in the textbox
     if(!toDo || typeof(toDo) !== "string")
     {
         alert("You need to add a to do item in the textbox provided.")
@@ -169,6 +207,7 @@ function newToDo(toDo)
     }
     else
     {
+        //verifies the item isn't on the list for that date and if not adds it to the list then recreates the page
         toDo = upperCase(toDo);
 
         var x = 0;
@@ -206,6 +245,8 @@ function newToDo(toDo)
     
 
 }
+
+//updates the array to mark the item as complete
 function Comp(ind2)
 {
     var move = date[ind][1].slice(ind2);
@@ -229,6 +270,7 @@ function Comp(ind2)
     addToPage();
 }
 
+//deletes an item from the array
 function Del(ind2)
 {
     var conf = confirm("Are you sure you want to delete this item?");
@@ -248,26 +290,28 @@ function Del(ind2)
     
 }
 
+//edits an item in an array
 function Ed(ind2)
 {
-    var p = document.getElementById("p" + ind2);
-    var rowCell2 = document.getElementById("row" + ind2 + "cell" + 2);
-    var rowCell3 = document.getElementById("row" + ind2 + "cell" + 3);
+    //gets the elements and creates elements to do the editing of the item
+    var p = document.getElementById("pT" + ind2);
+    var rowCell2 = document.getElementById("Trow" + ind2 + "cell" + 2);
+    var rowCell3 = document.getElementById("Trow" + ind2 + "cell" + 3);
     var txt = p.textContent;
     var txtbx = document.createElement("input");
     txtbx.type = "text";
     txtbx.value = txt;
     p.textContent = "";
     p.appendChild(txtbx);
-    var btnEd = document.getElementById("btnEdit" + ind2);
+    var btnEd = document.getElementById("btnTEdit" + ind2);
     btnEd.setAttribute("class", "hidden");
-    var btnDel = document.getElementById("btnDelete" + ind2);
+    var btnDel = document.getElementById("btnTDelete" + ind2);
     btnDel.setAttribute("class", "hidden");
     var btnUpd = document.createElement("input");
     btnUpd.value = "UPDATE";
     btnUpd.type = "button";
     btnUpd.setAttribute("class", "btn btn-default");
-    btnUpd.addEventListener('click', function(ind2) {
+    btnUpd.addEventListener('click', function() {
 
         ask = txtbx.value;
 
@@ -298,8 +342,8 @@ function Ed(ind2)
     btnCan.type = "button";
     btnCan.addEventListener('click', function(ind2) {
 
-        btnEd.removeAttribute("class");
-        btnDel.removeAttribute("class");
+        btnEd.setAttribute("class", "btn btn-warning  glyphicon glyphicon-pencil");
+        btnDel.setAttribute("class", "btn btn-danger  glyphicon glyphicon-trash");
         p.textContent = txt;
         rowCell2.removeChild(btnUpd);
         rowCell3.removeChild(btnCan);
@@ -308,6 +352,8 @@ function Ed(ind2)
     rowCell2.appendChild(btnUpd);
     rowCell3.appendChild(btnCan);
 }
+
+//moves items down on the list
 function mDown(ind2)
 {
    var move = date[ind][1].splice(ind2,1);
@@ -332,6 +378,7 @@ function mDown(ind2)
    addToPage();
 }
 
+//Moves items up on the list
 function mUp(ind2)
 {
    var move = date[ind][1].splice(ind2,1);
@@ -352,6 +399,7 @@ function mUp(ind2)
    addToPage();
 }
 
+//checks to see if a new date is needed and if so adds it, if not it just moves to the next index
 function Tom()
 {
 
@@ -368,6 +416,7 @@ function Tom()
     addToPage();
 }
 
+//moves to the previoius index
 function Yes()
 {
 
@@ -375,13 +424,14 @@ function Yes()
     addToPage();
 }
 
-function newSearch(toDo)
+//Performs the search
+function newSearch()
 {
-    if (!toDo)
+    /*if (!toDo)
     {
         var toDo = prompt("what would you like to search for?");
-    }
-    
+    }*/
+    var toDo = document.getElementById('txtSearchToDo').value;
     if(!toDo || typeof(toDo) !== "string")
     {
         alert("You need to add search criteria in the textbox provided.")
@@ -411,22 +461,17 @@ function newSearch(toDo)
             x += 1;
             j = 0;
         }
-       addSearchToPage(toDo);
+        addSearchToPage(toDo);
         document.getElementById("addToDo").focus();
     }
 }
 
+//Adds the list from the search criteria to the modal
 function addSearchToPage(SC)
 {
    
-    var h2 = document.querySelector('h2');
-    h2.innerHTML = '<button type="button" data-toggle="tooltip" data-placement="bottom" title="Searches all your lists for the text you enter." class="btn btn-info glyphicon glyphicon-search" onclick="newSearch(document.getElementById(\'addToDo\').value);"> Search</button> List of to do items for search criteria "' + SC + '" <input type="button" data-toggle="tooltip" data-placement="bottom" title="Clears the search criteria and returns you to the To do List for the last day you were on." value="X" id="btnBack" onclick="addToPage()"/>';
-    
-    var table = document.querySelector("#updateTable"); //Create left div
-    while (table.rows.length > 0)
-    {
-        table.deleteRow(0);
-    }
+    var table = document.querySelector("#modalTable"); //Create left div
+    table.innerHTML = "";
     if(typeof SearchList !== "undefined")
     {
         for(i = 0; i < SearchList.length; i++)
@@ -486,7 +531,7 @@ function addSearchToPage(SC)
                                 break;  
                             }
                     case 5:
-                            newcell.innerHTML = '<button type="button"data-toggle="tooltip" data-placement="bottom" title="Go to the To Do List this item is on." class="glyphicon glyphicon-chevron-left" id="btnGoToList' + SearchList[i][2] + '" onclick="goToList(' + SearchList[i][2] + ')"/>';
+                            newcell.innerHTML = '<span data-toggle="tooltip" data-placement="bottom" title="Go to the To Do List this item is on." ><button type="button" data-toggle="modal" data-target="#myModal" class="glyphicon glyphicon-chevron-left" id="btnGoToList' + SearchList[i][2] + '" onclick="goToList(' + SearchList[i][2] + ')"/></span>';
                             break;
                     case 1:
                             newcell.innerHTML = '<p>' + SearchList[i][0] + '</p>';
@@ -511,7 +556,7 @@ function addSearchToPage(SC)
     newcell = row.insertCell(5);
     newcell.innerHTML = "Return";
 
-    leftDiv.appendChild(table); // Add name to left div
+    div.appendChild(table); // Add name to left div
     var btnNewtoDo = document.getElementById("btnAddToDo");
     btnNewtoDo.setAttribute("disabled", true);
     var CL = btnNewtoDo.className;
@@ -519,6 +564,8 @@ function addSearchToPage(SC)
     btnNewtoDo.setAttribute("class", CL);
     document.getElementById("addToDo").value = "";
 }
+
+//marks an item as complete in the main list and then calls the search function to re run the search
 function searchComp(dateInd, itemInd, SC)
 {
     var move = date[dateInd][1].slice(itemInd);
@@ -542,6 +589,7 @@ function searchComp(dateInd, itemInd, SC)
     newSearch(SC);
 }
 
+//Deletes the item from the main array then calls the search again
 function searchDel(dateInd, itemInd, SC)
 {
     var conf = confirm("Are you sure you want to delete this item?");
@@ -560,6 +608,7 @@ function searchDel(dateInd, itemInd, SC)
     }
 }
 
+//edits the item and recalls the search function
 function searchEd(dateInd, itemInd, SId, SC)
 {
      var p = document.getElementById("p" + SId);
@@ -579,7 +628,7 @@ function searchEd(dateInd, itemInd, SId, SC)
     btnUpd.value = "UPDATE";
     btnUpd.type = "button";
     btnUpd.setAttribute("class", "btn btn-default");
-    btnUpd.addEventListener('click', function(itemInd) {
+    btnUpd.addEventListener('click', function() {
 
         ask = txtbx.value;
 
@@ -622,6 +671,7 @@ function searchEd(dateInd, itemInd, SId, SC)
    
 }
 
+//takes you to the list of the search item selected
 function goToList(ind2)
 {
     ind = ind2;
